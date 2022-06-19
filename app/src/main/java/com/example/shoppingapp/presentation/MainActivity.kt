@@ -1,5 +1,6 @@
 package com.example.shoppingapp.presentation
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOnClickListener() {
         recyclerViewAdapter.onClickListener = {
-            Log.d("OnClick", it.toString())
+            startActivity(Intent(this, ShopItemActivity::class.java))
         }
     }
 
