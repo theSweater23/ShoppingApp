@@ -14,7 +14,7 @@ class MainViewModel: ViewModel() {
     private val repository = ShoppingListRepositoryImpl
 
     init {
-        repeat(1000) {
+        repeat(15) {
         ShoppingListRepositoryImpl.addItem(
             ShopItem("Element", it, Random.nextBoolean())
         )}

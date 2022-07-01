@@ -1,13 +1,16 @@
 package com.example.shoppingapp.presentation
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainer
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppingapp.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,19 +18,42 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recyclerViewAdapter: ShopItemAdapter
 
+    private var shopItemContainer: FragmentContainerView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        shopItemContainer = findViewById(R.id.shop_item_container)
 
         setupRecyclerView()
         setOnClickListener()
         setOnLongClickListener()
         setOnSwipeListener()
+        setupAddButton()
 
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         mainViewModel.shopList.observe(this) {
             recyclerViewAdapter.submitList(it)
         }
+    }
+
+    private fun setupAddButton() {
+        val addBtn = findViewById<FloatingActionButton>(R.id.float_action_btn)
+        addBtn.setOnClickListener {
+            if (isPortraitOrientation())
+                startActivity(ShopItemActivity.intentAdd(this))
+            else
+                launchFragment(ShopItemFragment.newInstanceAddShopItem())
+        }
+    }
+
+    private fun isPortraitOrientation() = shopItemContainer == null
+
+    private fun launchFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.shop_item_container, fragment)
+            .commit()
     }
 
     private fun setupRecyclerView() {
@@ -40,7 +66,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOnClickListener() {
         recyclerViewAdapter.onClickListener = {
-            startActivity(Intent(this, ShopItemActivity::class.java))
+            if (isPortraitOrientation()) {
+                startActivity(ShopItemActivity.intentEdit(this, it.id))
+            } else {
+                launchFragment(ShopItemFragment.newInstanceEditShopItem(it.id))
+            }
         }
     }
 
